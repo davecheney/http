@@ -12,7 +12,7 @@ type reader struct {
 }
 
 // ReadVersion reads a HTTP version string from the wire.
-func (r *reader) ReadVersion() (Version, error) {
+func ReadVersion(r *bufio.Reader) (Version, error) {
 	var major, minor int
 	for pos := 0; pos < len("HTTP/x.x "); pos++ {
 		c, err := r.ReadByte()
@@ -66,7 +66,7 @@ func readVersionErr(pos int, expected, got byte) (Version, error) {
 }
 
 // ReadStatusCode reads the HTTP status code from the wire.
-func (r *reader) ReadStatusCode() (int, error) {
+func ReadStatusCode(r *bufio.Reader) (int, error) {
 	var code int
 	for pos := 0; pos < len("200 "); pos++ {
 		c, err := r.ReadByte()
@@ -101,12 +101,12 @@ func (r *reader) ReadStatusCode() (int, error) {
 }
 
 // ReadStatusLine reads the status line.
-func (r *reader) ReadStatusLine() (Version, int, string, error) {
-	version, err := r.ReadVersion()
+func ReadStatusLine(r *bufio.Reader) (Version, int, string, error) {
+	version, err := ReadVersion(r)
 	if err != nil {
 		return Version{}, 0, "", err
 	}
-	code, err := r.ReadStatusCode()
+	code, err := ReadStatusCode(r)
 	if err != nil {
 		return Version{}, 0, "", err
 	}
@@ -115,8 +115,8 @@ func (r *reader) ReadStatusLine() (Version, int, string, error) {
 }
 
 // ReadHeader reads a http header.
-func (r *reader) ReadHeader() (string, string, bool, error) {
-	line, err := r.readLine()
+func ReadHeader(r *bufio.Reader) (string, string, bool, error) {
+	line, err := readLine(r)
 	if err != nil {
 		return "", "", false, err
 	}
@@ -135,6 +135,6 @@ func (r *reader) ReadBody() io.Reader {
 }
 
 // readLine returns a []byte terminated by a \r\n.
-func (r *reader) readLine() ([]byte, error) {
+func readLine(r *bufio.Reader) ([]byte, error) {
 	return r.ReadBytes('\n')
 }

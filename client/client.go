@@ -129,7 +129,7 @@ func (c *client) WriteRequest(req *Request) error {
 
 // ReadResponse unmarshalls a HTTP response.
 func (c *client) ReadResponse() (*Response, error) {
-	version, code, msg, err := c.ReadStatusLine()
+	version, code, msg, err := ReadStatusLine(c.Reader)
 	var headers []Header
 	if err != nil {
 		return nil, fmt.Errorf("ReadStatusLine: %v", err)
@@ -137,7 +137,7 @@ func (c *client) ReadResponse() (*Response, error) {
 	for {
 		var key, value string
 		var done bool
-		key, value, done, err = c.ReadHeader()
+		key, value, done, err = ReadHeader(c.Reader)
 		if err != nil || done {
 			break
 		}

@@ -24,8 +24,8 @@ var readVersionTests = []struct {
 
 func TestReadVersion(t *testing.T) {
 	for _, tt := range readVersionTests {
-		c := &reader{b(tt.line)}
-		actual, err := c.ReadVersion()
+		r := b(tt.line)
+		actual, err := ReadVersion(r)
 		if actual != tt.expected || !sameErr(err, tt.err) {
 			t.Errorf("ReadVersion(%q): expected %v %v, got %v %v", tt.line, tt.expected, tt.err, actual, err)
 		}
@@ -47,8 +47,8 @@ var readStatusCodeTests = []struct {
 
 func TestReadStatusCode(t *testing.T) {
 	for _, tt := range readStatusCodeTests {
-		c := &reader{b(tt.line)}
-		actual, err := c.ReadStatusCode()
+		r := b(tt.line)
+		actual, err := ReadStatusCode(r)
 		if actual != tt.expected || !sameErr(err, tt.err) {
 			t.Errorf("ReadVersion(%q): expected %v %v, got %v %v", tt.line, tt.expected, tt.err, actual, err)
 		}
@@ -80,8 +80,8 @@ var readStatusLineTests = []struct {
 
 func TestReadStatusLine(t *testing.T) {
 	for _, tt := range readStatusLineTests {
-		c := &reader{b(tt.line)}
-		version, code, msg, err := c.ReadStatusLine()
+		r := b(tt.line)
+		version, code, msg, err := ReadStatusLine(r)
 		if version != tt.Version || code != tt.code || msg != tt.msg || err != tt.err {
 			t.Errorf("ReadStatusLine(%q): expected %q %d %q %v, got %q %d %q %v", tt.line, tt.Version, tt.code, tt.msg, tt.err, version, code, msg, err)
 		}
@@ -110,8 +110,8 @@ var readHeaderTests = []struct {
 
 func TestReadHeader(t *testing.T) {
 	for _, tt := range readHeaderTests {
-		c := &reader{b(tt.header)}
-		key, value, done, err := c.ReadHeader()
+		r := b(tt.header)
+		key, value, done, err := ReadHeader(r)
 		if key != tt.key || value != tt.value || done != tt.done || !sameErr(err, tt.err) {
 			t.Errorf("ReadHeader: expected %q %q %v %v, got %q %q %v %v", tt.key, tt.value, tt.done, tt.err, key, value, done, err)
 		}
@@ -137,11 +137,11 @@ var readHeadersTests = []struct {
 func TestReadHeaders(t *testing.T) {
 NEXT:
 	for _, tt := range readHeadersTests {
-		c := &reader{b(tt.headers)}
+		r := b(tt.headers)
 		for i, done := 0, false; !done; i++ {
 			var key, value string
 			var err error
-			key, value, done, err = c.ReadHeader()
+			key, value, done, err = ReadHeader(r)
 			if err == io.EOF {
 				break NEXT
 			}
@@ -197,8 +197,8 @@ var readLineTests = []struct {
 
 func TestReadLine(t *testing.T) {
 	for _, tt := range readLineTests {
-		c := &reader{b(tt.line)}
-		actual, err := c.readLine()
+		r := b(tt.line)
+		actual, err := readLine(r)
 		if actual := string(actual); actual != tt.expected || err != tt.err {
 			t.Errorf("readLine(%q): expected %q %v, got %q, %v", tt.line, tt.expected, tt.err, actual, err)
 		}
